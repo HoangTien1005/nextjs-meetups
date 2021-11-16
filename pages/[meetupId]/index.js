@@ -1,4 +1,5 @@
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import { connectToDatabase } from "../../lib/mongodb";
 import { Fragment } from "react";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
 import Head from "next/head";
@@ -24,15 +25,19 @@ const MeetupDetails = (props) => {
 };
 
 export async function getStaticPaths() {
-  const client = await MongoClient.connect(
-    "mongodb+srv://htien:1234@cluster0.cm85q.mongodb.net/meetups?retryWrites=true&w=majority"
-  );
-  const db = client.db();
+  // const client = await MongoClient.connect(
+  //   "mongodb+srv://htien:1234@cluster0.cm85q.mongodb.net/meetups?retryWrites=true&w=majority"
+  // );
+  // const db = client.db();
 
-  const meetupsCollection = db.collection("meetups");
-  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+  // const meetupsCollection = db.collection("meetups");
+  // const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
 
-  client.close();
+  // client.close();
+
+  const {db} = await connectToDatabase()
+  const meetups = await db.collection("meetups").find({}, {_id: 1}).toArray()
+
   return {
     fallback: 'blocking',
     paths: meetups.map((meetup) => ({
@@ -48,18 +53,21 @@ export async function getStaticProps(context) {
 
   const meetupId = context.params.meetupId;
 
-  const client = await MongoClient.connect(
-    "mongodb+srv://htien:1234@cluster0.cm85q.mongodb.net/meetups?retryWrites=true&w=majority"
-  );
-  const db = client.db();
+  // const client = await MongoClient.connect(
+  //   "mongodb+srv://htien:1234@cluster0.cm85q.mongodb.net/meetups?retryWrites=true&w=majority"
+  // );
+  // const db = client.db();
 
-  const meetupsCollection = db.collection("meetups");
+  // const meetupsCollection = db.collection("meetups");
 
-  const selectedMeetup = await meetupsCollection.findOne({
-    _id: ObjectId(meetupId),
-  });
+  // const selectedMeetup = await meetupsCollection.findOne({
+  //   _id: ObjectId(meetupId),
+  // });
 
-  client.close();
+  // client.close();
+
+  const {db} = await connectToDatabase()
+  const selectedMeetup = await db.collection("meetups").findOne({_id: ObjectId(meetupId)})
 
   return {
     props: {
